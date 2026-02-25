@@ -1,32 +1,23 @@
 {
   "name": "react-native-multi-range-slider",
   "version": "1.0.0",
-  "description": "A customizable multi thumb range slider for React Native",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "react-native": "src/index.ts",
+  "source": "src/index.ts",
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "npm run build"
   },
-  "keywords": [
-    "react-native",
-    "slider",
-    "range-slider",
-    "multi-slider"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14",
-    "@types/react-native": "^0.72.8",
-    "typescript": "^5.9.3"
+    "typescript": "^5.0.0"
   }
 }

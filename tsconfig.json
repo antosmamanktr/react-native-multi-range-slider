@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",        // 🔥 VERY IMPORTANT
-    "jsx": "react",
-    "declaration": true,
     "outDir": "dist",
+    "declaration": true,
+    "jsx": "react-native",
+    "moduleResolution": "node",
+    "target": "es6",
+    "module": "commonjs",
     "esModuleInterop": true,
     "skipLibCheck": true
   },
