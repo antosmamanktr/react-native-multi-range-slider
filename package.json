@@ -10,8 +10,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc",
-    "prepare": "npm run build"
+    "build": "tsc"
   },
   "peerDependencies": {
     "react": "*",
