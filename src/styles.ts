@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     justifyContent: 'center',
   },
@@ -17,14 +17,11 @@ export const styles = StyleSheet.create({
   },
   thumb: {
     position: 'absolute',
+    backgroundColor: '#fff',
     borderColor: '#007AFF',
     borderWidth: 2,
     borderRadius: 999,
     elevation: 3,
-    alignItems: 'center',
-  },
-  thumbExternal: {
-    position: 'absolute',
     alignItems: 'center',
   },
 });

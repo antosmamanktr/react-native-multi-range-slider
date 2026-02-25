@@ -6,7 +6,7 @@ import {
   Pressable,
   LayoutChangeEvent,
 } from 'react-native';
-import { styles } from './styles';
+import styles from './styles';
 import { MultiRangeSliderProps } from './types';
 
 const MultiRangeSlider: React.FC<MultiRangeSliderProps> = props => {
@@ -24,16 +24,17 @@ const MultiRangeSlider: React.FC<MultiRangeSliderProps> = props => {
     leftThumbStyle,
     rightThumbStyle,
     renderThumb,
-    minSelectedTrackWidth = 6,
+    minSelectedTrackWidth = 0,
   } = props;
 
   const trackWidth = useRef<number>(0);
-  const isMulti = Array.isArray(values);
+
+  const isMulti = Array.isArray(values) && values.length === 2;
   const isRangeLocked = min === max;
 
   const currentValue = useRef<number>(value);
-  const leftValue = useRef<number>(isMulti ? values?.[0] ?? min : min);
-  const rightValue = useRef<number>(isMulti ? values?.[1] ?? max : max);
+  const leftValue = useRef<number>(isMulti ? values![0] : min);
+  const rightValue = useRef<number>(isMulti ? values![1] : max);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const leftX = useRef(new Animated.Value(0)).current;
@@ -43,22 +44,19 @@ const MultiRangeSlider: React.FC<MultiRangeSliderProps> = props => {
   const leftOffset = useRef<number>(0);
   const rightOffset = useRef<number>(0);
 
-  /* ---------------- STEP ---------------- */
+  /* ---------------- Helpers ---------------- */
 
-  const getSteppedValue = (rawValue: number): number => {
+  const getSteppedValue = (raw: number): number => {
     const safeStep = step <= 0 ? 1 : step;
     const stepped =
-      Math.round((rawValue - min) / safeStep) * safeStep + min;
+      Math.round((raw - min) / safeStep) * safeStep + min;
 
-    const clamped = Math.min(max, Math.max(min, stepped));
-
-    return Number(clamped.toFixed(0));
+    return Math.min(max, Math.max(min, stepped));
   };
 
   const getPositionFromValue = (val: number): number => {
     if (!trackWidth.current || max === min) return 0;
-    const ratio = (val - min) / (max - min);
-    return ratio * trackWidth.current;
+    return ((val - min) / (max - min)) * trackWidth.current;
   };
 
   const getValueFromPosition = (pos: number): number => {
@@ -67,256 +65,118 @@ const MultiRangeSlider: React.FC<MultiRangeSliderProps> = props => {
     return getSteppedValue(min + ratio * (max - min));
   };
 
-  /* ---------------- VALUE NORMALIZATION ---------------- */
-
-  const normalizeMultiValues = (): void => {
-    if (!isMulti) return;
-
-    let left = leftValue.current;
-    let right = rightValue.current;
-
-    if (left > max && right > max) {
-      left = max;
-      right = max;
-    } else if (left < min && right < min) {
-      left = min;
-      right = min;
-    }
-
-    if (left > right) {
-      [left, right] = [right, left];
-    }
-
-    leftValue.current = getSteppedValue(left);
-    rightValue.current = getSteppedValue(right);
-  };
-
-  /* ---------------- TRACK PRESS ---------------- */
-
-  const moveToPosition = (locationX: number): void => {
-    if (!trackWidth.current || isRangeLocked) return;
-
-    let clampedX = Math.max(0, Math.min(locationX, trackWidth.current));
-    const steppedValue = getValueFromPosition(clampedX);
-    const steppedPosition = getPositionFromValue(steppedValue);
-
-    if (isMulti) {
-      const leftPos = leftX.__getValue();
-      const rightPos = rightX.__getValue();
-
-      const distToLeft = Math.abs(clampedX - leftPos);
-      const distToRight = Math.abs(clampedX - rightPos);
-
-      if (distToLeft <= distToRight) {
-        const finalPos = Math.min(steppedPosition, rightPos);
-        leftX.setValue(finalPos);
-        leftValue.current = getValueFromPosition(finalPos);
-      } else {
-        const finalPos = Math.max(steppedPosition, leftPos);
-        rightX.setValue(finalPos);
-        rightValue.current = getValueFromPosition(finalPos);
-      }
-
-      props.onValuesChange?.([leftValue.current, rightValue.current]);
-      props.onValuesChangeFinish?.([leftValue.current, rightValue.current]);
-    } else {
-      translateX.setValue(steppedPosition);
-      currentValue.current = steppedValue;
-
-      props.onValueChange?.(currentValue.current);
-      props.onValueChangeFinish?.(currentValue.current);
-    }
-  };
-
-  /* ---------------- PAN ---------------- */
-
-  const createSinglePan = () =>
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => !isRangeLocked,
-      onMoveShouldSetPanResponder: () => !isRangeLocked,
-
-      onPanResponderGrant: () => {
-        offset.current = translateX.__getValue();
-      },
-
-      onPanResponderMove: (_, gesture) => {
-        if (!trackWidth.current || isRangeLocked) return;
-
-        let newPosition = offset.current + gesture.dx;
-        newPosition = Math.max(0, Math.min(newPosition, trackWidth.current));
-
-        translateX.setValue(newPosition);
-        currentValue.current = getValueFromPosition(newPosition);
-
-        props.onValueChange?.(currentValue.current);
-      },
-
-      onPanResponderRelease: () => {
-        props.onValueChangeFinish?.(currentValue.current);
-      },
-    });
-
-  const createMultiPan = () => {
-    const leftPanResponder = PanResponder.create({
-      onStartShouldSetPanResponder: () => !isRangeLocked,
-      onMoveShouldSetPanResponder: () => !isRangeLocked,
-
-      onPanResponderGrant: () => {
-        leftOffset.current = leftX.__getValue();
-      },
-
-      onPanResponderMove: (_, gesture) => {
-        if (!trackWidth.current || isRangeLocked) return;
-
-        const rightPosition = rightX.__getValue();
-
-        let newPosition = leftOffset.current + gesture.dx;
-        newPosition = Math.max(0, Math.min(newPosition, rightPosition));
-
-        leftX.setValue(newPosition);
-        leftValue.current = getValueFromPosition(newPosition);
-
-        props.onValuesChange?.([leftValue.current, rightValue.current]);
-      },
-
-      onPanResponderRelease: () => {
-        props.onValuesChangeFinish?.([leftValue.current, rightValue.current]);
-      },
-    });
-
-    const rightPanResponder = PanResponder.create({
-      onStartShouldSetPanResponder: () => !isRangeLocked,
-      onMoveShouldSetPanResponder: () => !isRangeLocked,
-
-      onPanResponderGrant: () => {
-        rightOffset.current = rightX.__getValue();
-      },
-
-      onPanResponderMove: (_, gesture) => {
-        if (!trackWidth.current || isRangeLocked) return;
-
-        const leftPosition = leftX.__getValue();
-
-        let newPosition = rightOffset.current + gesture.dx;
-        newPosition = Math.max(
-          leftPosition,
-          Math.min(newPosition, trackWidth.current),
-        );
-
-        rightX.setValue(newPosition);
-        rightValue.current = getValueFromPosition(newPosition);
-
-        props.onValuesChange?.([leftValue.current, rightValue.current]);
-      },
-
-      onPanResponderRelease: () => {
-        props.onValuesChangeFinish?.([leftValue.current, rightValue.current]);
-      },
-    });
-
-    return { leftPanResponder, rightPanResponder };
-  };
-
-  const singlePan = useRef(!isMulti ? createSinglePan() : null).current;
-  const multiPan = useRef(isMulti ? createMultiPan() : null).current;
-
-  /* ---------------- SYNC ---------------- */
-
-  const updateFromProps = (): void => {
+  const updateFromProps = () => {
     if (!trackWidth.current) return;
 
-    if (isMulti) {
-      normalizeMultiValues();
+    if (isMulti && values) {
+      let left = getSteppedValue(values[0]);
+      let right = getSteppedValue(values[1]);
 
-      leftX.setValue(getPositionFromValue(leftValue.current));
-      rightX.setValue(getPositionFromValue(rightValue.current));
+      if (left > right) [left, right] = [right, left];
+
+      leftValue.current = left;
+      rightValue.current = right;
+
+      leftX.setValue(getPositionFromValue(left));
+      rightX.setValue(getPositionFromValue(right));
     } else {
-      currentValue.current = getSteppedValue(value);
-      translateX.setValue(getPositionFromValue(currentValue.current));
+      const stepped = getSteppedValue(value);
+      currentValue.current = stepped;
+      translateX.setValue(getPositionFromValue(stepped));
     }
   };
 
   useEffect(() => {
-    updateFromProps();
-  }, []);
-
-  useEffect(() => {
-    if (isMulti) {
-      leftValue.current = values?.[0] ?? min;
-      rightValue.current = values?.[1] ?? max;
-    } else {
-      currentValue.current = value;
-    }
     updateFromProps();
   }, [value, values, min, max]);
 
-  /* ---------------- RENDER ---------------- */
+  /* ---------------- Render ---------------- */
 
   return (
     <View
       style={[
         styles.container,
-        { height: thumbSize, paddingHorizontal: thumbSize / 2 },
-      ]}>
+        {
+          height: thumbSize,
+          paddingHorizontal: thumbSize / 2,
+        },
+      ]}
+    >
       <Pressable
-        style={[styles.track, { height: trackHeight }, trackStyle]}
+        style={[
+          styles.track,
+          { height: trackHeight },
+          trackStyle,
+        ]}
         onLayout={(e: LayoutChangeEvent) => {
           trackWidth.current = e.nativeEvent.layout.width;
           updateFromProps();
         }}
-        onPress={e => moveToPosition(e.nativeEvent.locationX)}>
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.filled,
-            { height: trackHeight },
-            selectedTrackStyle,
-            {
-              left: Animated.subtract(leftX, minSelectedTrackWidth / 2),
-              width: Animated.add(
-                Animated.subtract(rightX, leftX),
-                minSelectedTrackWidth,
-              ),
-            },
-          ]}
-        />
+      >
+        {isMulti ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.filled,
+              { height: trackHeight },
+              selectedTrackStyle,
+              {
+                left: leftX,
+                width: Animated.add(
+                  Animated.subtract(rightX, leftX),
+                  minSelectedTrackWidth,
+                ),
+              },
+            ]}
+          />
+        ) : (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.filled,
+              { height: trackHeight },
+              selectedTrackStyle,
+              { width: translateX },
+            ]}
+          />
+        )}
       </Pressable>
 
-      {isMulti && !isRangeLocked ? (
+      {isMulti ? (
         <>
           <Animated.View
-            {...multiPan?.leftPanResponder.panHandlers}
             style={[
-              renderThumb ? styles.thumbExternal : styles.thumb,
+              styles.thumb,
               { width: thumbSize, height: thumbSize },
               thumbStyle,
               leftThumbStyle,
               { transform: [{ translateX: leftX }] },
-            ]}>
+            ]}
+          >
             {renderThumb}
           </Animated.View>
 
           <Animated.View
-            {...multiPan?.rightPanResponder.panHandlers}
             style={[
-              renderThumb ? styles.thumbExternal : styles.thumb,
+              styles.thumb,
               { width: thumbSize, height: thumbSize },
               thumbStyle,
               rightThumbStyle,
               { transform: [{ translateX: rightX }] },
-            ]}>
+            ]}
+          >
             {renderThumb}
           </Animated.View>
         </>
       ) : (
         <Animated.View
-          {...singlePan?.panHandlers}
           style={[
-            renderThumb ? styles.thumbExternal : styles.thumb,
+            styles.thumb,
             { width: thumbSize, height: thumbSize },
             thumbStyle,
-            { transform: [{ translateX: translateX }] },
-          ]}>
+            { transform: [{ translateX }] },
+          ]}
+        >
           {renderThumb}
         </Animated.View>
       )}
