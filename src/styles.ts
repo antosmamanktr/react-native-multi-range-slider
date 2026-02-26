@@ -4,8 +4,10 @@ export default StyleSheet.create({
   container: {
     justifyContent: 'center',
   },
+  verticalContainer: {
+    alignItems: 'center',
+  },
   track: {
-    width: '100%',
     backgroundColor: '#E0E0E0',
     borderRadius: 2,
     justifyContent: 'center',
@@ -23,5 +25,11 @@ export default StyleSheet.create({
     borderRadius: 999,
     elevation: 3,
     alignItems: 'center',
+    top: 0,
+  },
+   emptyThumb: {
+    position: 'absolute',
+    alignItems: 'center',
+    top: 0,
   },
 });

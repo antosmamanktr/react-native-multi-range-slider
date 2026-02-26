@@ -1,29 +1,44 @@
-import { ReactNode } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import { ReactNode, RefObject } from 'react';
+import { FlatList, ScrollView, StyleProp, ViewStyle } from 'react-native';
 
 export interface MultiRangeSliderProps {
   min?: number;
   max?: number;
+  step?: number;
+  mode?: string;
 
-  value?: number;                // Single slider
-  values?: [number, number];     // Range slider
+  value: number | [number, number];
+
+  /* EVENTS */
+  onValuesChangeStart?: (value: number | [number, number]) => void;
+  onValuesChange?: (value: number | [number, number]) => void;
+  onValuesChangeFinish?: (value: number | [number, number]) => void;
 
   thumbSize?: number;
   trackHeight?: number;
-  step?: number;
 
   trackStyle?: StyleProp<ViewStyle>;
   selectedTrackStyle?: StyleProp<ViewStyle>;
+
   thumbStyle?: StyleProp<ViewStyle>;
   leftThumbStyle?: StyleProp<ViewStyle>;
   rightThumbStyle?: StyleProp<ViewStyle>;
 
-  renderThumb?: ReactNode;
+  renderThumb?: () => ReactNode;
+
+  /* CUSTOM MARKERS */
+  customMarker?: () => ReactNode;
+  customMarkerLeft?: () => ReactNode;
+  customMarkerRight?: () => ReactNode;
+
   minSelectedTrackWidth?: number;
+  minMarkerOverlapDistance?: number;
 
-  onValueChange?: (value: number) => void;
-  onValueChangeFinish?: (value: number) => void;
-
-  onValuesChange?: (values: [number, number]) => void;
-  onValuesChangeFinish?: (values: [number, number]) => void;
+  disabled?: boolean;
+  vertical?: boolean;
+  inverted?: boolean;
+  verticalHeight?: number;
+  scrollRef?: RefObject<ScrollView | FlatList | null>;
+  thumbAnimation?: boolean;
+  thumbScaleValue?: number;
 }
