@@ -1,0 +1,32 @@
+import { ReactNode, RefObject } from 'react';
+import { FlatList, ScrollView, StyleProp, ViewStyle } from 'react-native';
+export interface MultiRangeSliderProps {
+    min?: number;
+    max?: number;
+    step?: number;
+    mode?: string;
+    value: number | [number, number];
+    onValuesChangeStart?: (value: number | [number, number]) => void;
+    onValuesChange?: (value: number | [number, number]) => void;
+    onValuesChangeFinish?: (value: number | [number, number]) => void;
+    thumbSize?: number;
+    trackHeight?: number;
+    trackStyle?: StyleProp<ViewStyle>;
+    selectedTrackStyle?: StyleProp<ViewStyle>;
+    thumbStyle?: StyleProp<ViewStyle>;
+    leftThumbStyle?: StyleProp<ViewStyle>;
+    rightThumbStyle?: StyleProp<ViewStyle>;
+    renderThumb?: () => ReactNode;
+    customMarker?: () => ReactNode;
+    customMarkerLeft?: () => ReactNode;
+    customMarkerRight?: () => ReactNode;
+    minSelectedTrackWidth?: number;
+    minMarkerOverlapDistance?: number;
+    disabled?: boolean;
+    vertical?: boolean;
+    inverted?: boolean;
+    verticalHeight?: number;
+    scrollRef?: RefObject<ScrollView | FlatList | null>;
+    thumbAnimation?: boolean;
+    thumbScaleValue?: number;
+}

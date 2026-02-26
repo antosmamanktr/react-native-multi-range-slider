@@ -1,5 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { View, PanResponder, Animated, Pressable } from "react-native";
+import {
+  View,
+  PanResponder,
+  Animated,
+  Pressable,
+  LayoutChangeEvent,
+  GestureResponderEvent,
+} from "react-native";
 import styles from "./styles";
 import { MultiRangeSliderProps } from "./types";
 
@@ -155,7 +162,7 @@ const MultiRangeSlider: React.FC<MultiRangeSliderProps> = (props) => {
       ? { transform: [{ translateY: v }] }
       : { transform: [{ translateX: v }] };
 
-  const pressLocation = (e: React.GestureResponderEvent) =>
+  const pressLocation = (e: GestureResponderEvent) =>
     vertical ? e.nativeEvent.locationY : e.nativeEvent.locationX;
 
   const moveToPosition = (loc: number) => {
@@ -314,7 +321,7 @@ const MultiRangeSlider: React.FC<MultiRangeSliderProps> = (props) => {
           vertical ? { width: trackHeight, flex: 1 } : { height: trackHeight },
           trackStyle,
         ]}
-        onLayout={(e: React.LayoutChangeEvent) => {
+        onLayout={(e: LayoutChangeEvent) => {
           trackSize.current = vertical
             ? e.nativeEvent.layout.height
             : e.nativeEvent.layout.width;
