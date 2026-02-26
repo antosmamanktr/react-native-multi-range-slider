@@ -1,11 +1,16 @@
 {
   "name": "react-native-multi-range-slider",
   "version": "1.0.0",
-  "description": "A customizable, theme-ready multi slider",
+  "description": "Highly customizable and smooth React Native multi range slider with vertical, single and dual support.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "keywords": [
-    "react-native"
+    "react-native",
+    "slider",
+    "multi-slider",
+    "range-slider",
+    "react-native-slider",
+    "vertical-slider"
   ],
   "author": "Antos Maman",
   "license": "MIT",

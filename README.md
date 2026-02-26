@@ -6,6 +6,12 @@ Supports dual thumbs, single thumb mode, vertical orientation, custom markers, S
 
 ---
 
+## ✨ Demo
+
+<p align="center">
+  <img src="./assets/demo.gif" alt="Multi Range Slider Demo" width="300" />
+</p>
+
 ## ✨ Features
 
 - 🎯 Single slider & dual thumb (range) slider
