@@ -1,16 +1,26 @@
 {
   "name": "react-native-multi-range-slider",
   "version": "1.0.0",
+  "description": "A customizable, theme-ready multi slider",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "react-native": "src/index.ts",
-  "source": "src/index.ts",
+  "keywords": [
+    "react-native"
+  ],
+  "author": "Antos Maman",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antosmamanktr/react-native-multi-range-slider.git"
+  },
   "files": [
     "dist",
-    "src"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "react": "*",
@@ -19,6 +29,7 @@
   "devDependencies": {
     "@types/react": "^19.2.14",
     "@types/react-native": "^0.72.8",
+    "react": "^18.2.0",
     "typescript": "^5.9.3"
   }
 }
